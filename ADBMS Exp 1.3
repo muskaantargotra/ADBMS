@@ -1,0 +1,68 @@
+-- Create Students table
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    dob DATE
+);
+
+-- Create Courses table
+CREATE TABLE Courses (
+    course_id INT PRIMARY KEY,
+    title VARCHAR(100)
+);
+
+-- Create Enrollments table
+CREATE TABLE Enrollments (
+    enroll_id INT PRIMARY KEY,
+    student_id INT,
+    course_id INT,
+    grade VARCHAR(2),
+    FOREIGN KEY (student_id) REFERENCES Students(student_id),
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id)
+);
+
+-- Insert sample Students
+INSERT INTO Students (student_id, name, dob) VALUES
+(1, 'Alice', '2002-04-15'),
+(2, 'Bob', '2001-11-20');
+
+-- Insert sample Courses
+INSERT INTO Courses (course_id, title) VALUES
+(101, 'Database Systems'),
+(102, 'Operating Systems'),
+(103, 'Data Structures');
+
+-- Insert initial Enrollments
+INSERT INTO Enrollments (enroll_id, student_id, course_id, grade) VALUES
+(1001, 1, 101, 'A'),
+(1002, 2, 103, 'B');
+
+START TRANSACTION;
+
+-- First enrollment (correct)
+INSERT INTO Enrollments (enroll_id, student_id, course_id, grade)
+VALUES (1003, 1, 102, 'A');
+START TRANSACTION;
+
+-- First enrollment (correct)
+INSERT INTO Enrollments (enroll_id, student_id, course_id, grade)
+VALUES (1003, 1, 102, 'A');
+
+SAVEPOINT before_second_insert;
+
+-- Incorrect insert (duplicate primary key)
+INSERT INTO Enrollments (enroll_id, student_id, course_id, grade)
+VALUES (1003, 1, 103, 'B');
+
+ROLLBACK TO before_second_insert;
+
+-- Now only the first correct enrollment remains.
+COMMIT;
+
+SELECT 
+    s.name AS Student_Name,
+    c.title AS Course_Title,
+    e.grade AS Grade
+FROM Enrollments e
+INNER JOIN Students s ON e.student_id = s.student_id
+INNER JOIN Courses c ON e.course_id = c.course_id;
