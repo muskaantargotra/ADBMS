@@ -1,0 +1,45 @@
+-- Creating Departments table
+CREATE TABLE Departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL
+);
+
+-- Creating Courses table
+CREATE TABLE Courses (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(100) NOT NULL,
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)
+);
+
+-- Insert Departments
+INSERT INTO Departments (dept_id, dept_name)
+VALUES
+(1, 'Computer Science'),
+(2, 'Mechanical Engineering'),
+(3, 'Electrical Engineering'),
+(4, 'Civil Engineering'),
+(5, 'Business Administration');
+
+-- Insert Courses
+INSERT INTO Courses (course_id, course_name, dept_id)
+VALUES
+(101, 'Data Structures', 1),
+(102, 'Database Systems', 1),
+(103, 'Operating Systems', 1),
+(104, 'Thermodynamics', 2),
+(105, 'Fluid Mechanics', 2),
+(106, 'Circuit Analysis', 3),
+(107, 'Power Systems', 3),
+(108, 'Structural Engineering', 4),
+(109, 'Marketing Management', 5),
+(110, 'Financial Accounting', 5);
+
+SELECT dept_name
+FROM Departments
+WHERE dept_id IN (
+    SELECT dept_id
+    FROM Courses
+    GROUP BY dept_id
+    HAVING COUNT(course_id) > 2
+);
